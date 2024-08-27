@@ -1,0 +1,41 @@
+services:
+  autoware:
+    container_name: autoware-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - USERNAME
+        - UID
+        - GID
+      tags:
+        - "autoware:latest-custom"
+        - "huynhvuh/autoware:latest-custom"
+    environment:
+      - DISPLAY=autoware-novnc:0.0
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $PWD:/workspaces/autoware
+      - $HOME/autoware_map:/autoware_map:ro
+      - $HOME/data:/data
+    networks:
+      - autoware-network
+    tty: true
+
+  autoware-novnc:
+    container_name: autoware-novnc
+    image: "theasp/novnc:latest"
+    environment:
+      - DISPLAY_WIDTH=1800
+      - DISPLAY_HEIGHT=1012
+      - RUN_XTERM=no
+      - RUN_FLUXBOX=yes
+    ports:
+      - "8123:8080" # http://localhost:8123/vnc.html
+    networks:
+      - autoware-network
+
+networks:
+  autoware-network:
+    name: autoware-network
